@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 
 # Klasse für Verarbeitung von Tastatur / Sensoren
 class GameInput:
@@ -9,14 +10,19 @@ class GameInput:
     def check(self):
         if self.keyboardMode:
             keys = pygame.key.get_pressed()
-            if keys[pygame.K_w]:
+            if keys[pygame.K_q]:
                 return "up"
             if keys[pygame.K_s]:
                 return "down"
             if keys[pygame.K_a]:
                 return "left"
-            if keys[pygame.K_d]:
+            if keys[pygame.K_w]:
                 return "right"
+        else:
+            with open("herald.lag", "r") as inputfile:
+                print("File: " + inputfile.readline())
+                #print(time.time())
+            
             
 class User:
     def __init__(self):
@@ -88,7 +94,7 @@ class Field:
             
 
     def checkInput(self, input):
-        if input:
+        if input and len(self.query) == self.index:
             if input == "up":
                 self.index = 0
                 self.setRandomQuery(5)
@@ -147,7 +153,7 @@ dt = 0 # Für alles was sich bewegen würde
 smallBoxWidth = 45;
 smallBoxDistance = 250;
 
-gameInput = GameInput(True)
+gameInput = GameInput(False)
 user = User()
 
 # Erstellung der Grafikobjekte
