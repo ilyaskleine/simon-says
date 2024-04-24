@@ -1,14 +1,26 @@
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
+import json
 import time
 
 
 run = True
 
-while run:
-    time.sleep(1)
-    with open("herald.lag", "w") as outfile:
-        outfile.write(str(time.time()))
+count = 0
 
+while True:
+    # ... Logik mit Trigger-Distanz und schreiben in Datei
+
+    distances = {
+        "l": count,
+        "r": 1,
+        "b": 1,
+        "f": 1
+    }
+
+    with open("distances.json", "w") as outfile:
+        outfile.write(json.dumps(distances))
+
+    count += 1
 
 L_TRIGGER = 6
 L_ECHO = 13
@@ -49,12 +61,7 @@ initPins(F_TRIGGER, F_ECHO)
 print("Waiting for sensors to settle")
 time.sleep(2)
 
-while True:
-    # ... Logik mit Trigger-Distanz und schreiben in Datei
-    getDistance(L_TRIGGER, L_ECHO)
-    getDistance(R_TRIGGER, R_ECHO)
-    getDistance(B_TRIGGER, B_ECHO)
-    getDistance(F_TRIGGER, F_ECHO)
+
 
       
 

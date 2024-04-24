@@ -1,3 +1,4 @@
+import json
 import pygame
 
 # Klasse für Verarbeitung von Tastatur / Sensoren
@@ -16,3 +17,10 @@ class GameInput:
                 return "left"
             if keys[pygame.K_w]:
                 return "right"
+        else:
+            self.jsonToInput()
+
+    def jsonToInput(self):
+        with open('distances.json') as file:
+            data = json.load(file)
+            print(data)

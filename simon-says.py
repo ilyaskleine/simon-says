@@ -1,7 +1,6 @@
 import pygame
 import random
 
-from game_input import GameInput
 from graphic_objects import Field, Text
 
 # --- Pygame Setup ---
@@ -14,8 +13,6 @@ running = True # Game Loop an aus
 dt = 0 # Für alles was sich bewegen würde
 smallBoxWidth = 45;
 smallBoxDistance = 250;
-
-gameInput = GameInput(True)
 
 scene = "startScreen"
 
@@ -43,11 +40,17 @@ while running:
         startTitle.draw()
         startCaption.draw()
         if (pygame.time.get_ticks() - sceneStart) > 3000:
-            scene = "game" 
+            scene = "game"
+            sceneStart = pygame.time.get_ticks()
     elif scene == "game":
         scene = mainBox.draw()
+        sceneStart = pygame.time.get_ticks()
     elif scene == "gameOver":
         gameOverText.draw()
+        if (pygame.time.get_ticks() - sceneStart) > 3000:
+            scene = "startScreen"
+            sceneStart = pygame.time.get_ticks()
+            mainBox.reset()
 
     pygame.display.flip()
 

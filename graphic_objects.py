@@ -6,7 +6,7 @@ red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 yellow = (255, 255, 0)
-gameInput = GameInput(True)
+gameInput = GameInput(False)
 
 # Grafikobjekt: Box mit verschiedenen Farben     
 class Field:
@@ -27,17 +27,7 @@ class Field:
         self.bottomLeft = Corner(self.screen, self.posX, self.posY  + cornerWidth, cornerWidth, green)
         self.bottomRight = Corner(self.screen, self.posX + cornerWidth, self.posY + cornerWidth, cornerWidth, yellow)
         # Algoritmic Variables
-        self.query = []
-        self.queryLength = 1
-        self.setRandomQuery()
-        self.index = 0
-        self.round = 0
-        self.activationTick = pygame.time.get_ticks()
-        self.guess = None
-        self.guessIndex = 0
-        self.cooldown = pygame.time.get_ticks()
-        self.score = 0
-        self.gameOver = False
+        self.reset()
 
     def draw(self):
         self.act()
@@ -141,6 +131,19 @@ class Field:
             choice = random.choice(pool)
             result.append(choice)
         self.query = result
+
+    def reset(self):
+        self.query = []
+        self.queryLength = 1
+        self.setRandomQuery()
+        self.index = 0
+        self.round = 0
+        self.activationTick = pygame.time.get_ticks()
+        self.guess = None
+        self.guessIndex = 0
+        self.cooldown = pygame.time.get_ticks()
+        self.score = 0
+        self.gameOver = False
 
             
 class Corner:
