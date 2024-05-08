@@ -5,6 +5,7 @@ import pygame
 class GameInput:
     def __init__(self, keyboard):
         self.keyboardMode = keyboard
+        self.threshold = 15
     
     def check(self):
         if self.keyboardMode:
@@ -23,4 +24,9 @@ class GameInput:
     def jsonToInput(self):
         with open('distances.json') as file:
             data = json.load(file)
-            print(data)
+            l = data["l"]
+            r = data["r"]
+            f = data["f"]
+            b = data["b"]
+            if l > self.threshold:
+                return "up"
