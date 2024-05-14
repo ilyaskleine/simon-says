@@ -6,7 +6,7 @@ from graphic_objects import Field, Text
 # --- Pygame Setup ---
 pygame.init()
 pygame.font.init()
-screen = pygame.display.set_mode((720, 720));
+screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN);
 pygame.display.set_caption("Farbfelder")
 clock = pygame.time.Clock() 
 running = True # Game Loop an aus 
@@ -23,6 +23,8 @@ startCaption = Text(screen, "Springe den gezeigten Farbcode\n und sammel Punkte!
 gameOverText = Text(screen, 'Game Over', 100, (255, 0, 0), 0)
 
 sceneStart = pygame.time.get_ticks() 
+
+
 
 # --- Game-Loop ---
 while running:

@@ -156,10 +156,13 @@ class Corner:
         self.color = color
         self.blinkTime = 1000
         self.activationTick = pygame.time.get_ticks()
+        img = pygame.image.load('assets/corner.png')
+        self.img = pygame.transform.scale(img, (width, width))
 
     def draw(self):
         if self.active:
             pygame.draw.rect(self.screen, self.color, pygame.Rect(self.posX, self.posY, self.width, self.width))
+            self.screen.blit(self.img, (self.posX, self.posY))
             # now = pygame.time.get_ticks()
             # if now - self.activationTick >= self.blinkTime:
             #     self.active = False
