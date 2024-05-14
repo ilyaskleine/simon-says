@@ -22,10 +22,10 @@ class Field:
         self.color = "black"
         self.blinkTime = 1000
         # (Child) Objects
-        self.topLeft = Corner(self.screen, self.posX, self.posY, cornerWidth, blue)
-        self.topRight = Corner(self.screen, self.posX + cornerWidth, self.posY, cornerWidth, red)
-        self.bottomLeft = Corner(self.screen, self.posX, self.posY  + cornerWidth, cornerWidth, green)
-        self.bottomRight = Corner(self.screen, self.posX + cornerWidth, self.posY + cornerWidth, cornerWidth, yellow)
+        self.topLeft = Corner(self.screen, self.posX, self.posY, cornerWidth, "blue")
+        self.topRight = Corner(self.screen, self.posX + cornerWidth, self.posY, cornerWidth, "red")
+        self.bottomLeft = Corner(self.screen, self.posX, self.posY  + cornerWidth, cornerWidth, "green")
+        self.bottomRight = Corner(self.screen, self.posX + cornerWidth, self.posY + cornerWidth, cornerWidth, "yellow")
         # Algoritmic Variables
         self.reset()
 
@@ -60,8 +60,7 @@ class Field:
                 key = gameInput.check()
                 self.checkInput(key)
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem
-                    self.queryLength += 1
-                    self.setRandomQuery()
+                    self.appendQuery()
                     self.blinkTime = self.blinkTime * 0.95
                     self.round += 1
                     self.index = 0
@@ -132,10 +131,18 @@ class Field:
             result.append(choice)
         self.query = result
 
+    def appendQuery(self):
+        pool = list(self.colorsToKey.keys())
+        if self.queryLength > 0:
+            pool.remove(self.query[self.queryLength - 1])
+        choice = random.choice(pool)
+        self.query.append(choice)
+        self.queryLength += 1
+
     def reset(self):
         self.query = []
-        self.queryLength = 1
-        self.setRandomQuery()
+        self.queryLength = 0
+        self.appendQuery()
         self.index = 0
         self.round = 0
         self.activationTick = pygame.time.get_ticks()
@@ -156,12 +163,12 @@ class Corner:
         self.color = color
         self.blinkTime = 1000
         self.activationTick = pygame.time.get_ticks()
-        img = pygame.image.load('assets/corner.png')
+        img = pygame.image.load(f'assets/{color}.png')
         self.img = pygame.transform.scale(img, (width, width))
 
     def draw(self):
         if self.active:
-            pygame.draw.rect(self.screen, self.color, pygame.Rect(self.posX, self.posY, self.width, self.width))
+            # ygame.draw.rect(self.screen, self.color, pygame.Rect(self.posX, self.posY, self.width, self.width))
             self.screen.blit(self.img, (self.posX, self.posY))
             # now = pygame.time.get_ticks()
             # if now - self.activationTick >= self.blinkTime:
