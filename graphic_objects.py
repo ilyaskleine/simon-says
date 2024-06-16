@@ -6,7 +6,7 @@ red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 yellow = (255, 255, 0)
-gameInput = GameInput(True)
+gameInput = GameInput(False)
 
 # Grafikobjekt: Box mit verschiedenen Farben     
 class Field:
@@ -19,7 +19,7 @@ class Field:
         cornerWidth = side / 2
         # Config 
         self.colorsToKey = {"red": "right", "yellow": "down", "blue": "up", "green": "left"}
-        self.color = "black"
+        self.color = (0, 0, 0)
         self.blinkTime = 1000
         # (Child) Objects
         self.topLeft = Corner(self.screen, self.posX, self.posY, cornerWidth, "blue")
@@ -156,7 +156,7 @@ class Field:
 class Corner:
     def __init__(self, screen, x, y, width, color):
         self.screen = screen
-        self.width = width
+        self.width = int(width)
         self.posX = x
         self.posY = y
         self.active = False

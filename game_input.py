@@ -18,6 +18,9 @@ class GameInput:
         self.meanDataF = []
         self.meanDataB = []
     
+    def get_pressed(self):
+        return pygame.key.get_pressed()
+
     def check(self):
         if self.keyboardMode:
             keys = pygame.key.get_pressed()
@@ -71,3 +74,7 @@ class GameInput:
                     return "down"
                 elif self.lockB and b > self.releaseThreshold:
                     self.lockB = False
+    
+    def debug(self):
+        with open('distances.json') as file:
+            return json.load(file)
