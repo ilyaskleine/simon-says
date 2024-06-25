@@ -22,7 +22,7 @@ smallBoxDistance = 250;
 
 scene = "game" if debug else "startScreen"
 
-keyboard_input = GameInput(True)
+keyboard_input = GameInput(False)
 
 # Erstellung der Grafikobjekte
 mainBox = Field(screen, 400)
@@ -72,14 +72,17 @@ while running:
         round_text = font.render(f'X schließt Programm', True, (255, 0, 0))
         screen.blit(round_text, (10, screen.get_height() - 100))
         data = keyboard_input.debug()
-        l_text = font.render(f'l_value: {data["l"]}', True, (0, 0, 0))
-        screen.blit(l_text, (10, screen.get_height() - 80))
-        r_text = font.render(f'r_value: {data["r"]}', True, (0, 0, 0))
-        screen.blit(r_text, (10, screen.get_height() - 60))
-        f_text = font.render(f'f_value: {data["f"]}', True, (0, 0, 0))
-        screen.blit(f_text, (10, screen.get_height() - 40))
-        b_text = font.render(f'b_value: {data["b"]}', True, (0, 0, 0))
-        screen.blit(b_text, (10, screen.get_height() - 20))
+        if data is None:
+            print("No Sensor-Data")
+        else:
+            l_text = font.render(f'l_value: {data["l"]}', True, (0, 0, 0))
+            screen.blit(l_text, (10, screen.get_height() - 80))
+            r_text = font.render(f'r_value: {data["r"]}', True, (0, 0, 0))
+            screen.blit(r_text, (10, screen.get_height() - 60))
+            f_text = font.render(f'f_value: {data["f"]}', True, (0, 0, 0))
+            screen.blit(f_text, (10, screen.get_height() - 40))
+            b_text = font.render(f'b_value: {data["b"]}', True, (0, 0, 0))
+            screen.blit(b_text, (10, screen.get_height() - 20))
     
     pygame.display.flip()
 

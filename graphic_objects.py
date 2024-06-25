@@ -16,7 +16,7 @@ class Field:
         # Computed values
         self.posX = screen.get_width() / 2 - side / 2
         self.posY = screen.get_height() / 2 - side / 2
-        cornerWidth = side / 2
+        cornerWidth = int(side / 2);
         # Config 
         self.colorsToKey = {"red": "right", "yellow": "down", "blue": "up", "green": "left"}
         self.color = (0, 0, 0)
@@ -58,6 +58,8 @@ class Field:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
                 key = gameInput.check()
+                if not key == None:
+                    print(key)
                 self.checkInput(key)
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem
                     self.appendQuery()
