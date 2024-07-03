@@ -1,5 +1,6 @@
 import json
 import pygame
+import statistics
 
 from input_debug import SensorData
 
@@ -54,10 +55,10 @@ class GameInput:
                     self.meanCount += 1
                 else:
                     self.meanCount = 0
-                    l = sum(self.meanDataL) / 10
-                    r = sum(self.meanDataR) / 10
-                    f = sum(self.meanDataF) / 10
-                    b = sum(self.meanDataB) / 10
+                    l = statistics.median(self.meanDataL)
+                    r = statistics.median(self.meanDataR) / 10
+                    f = statistics.median(self.meanDataF) / 10
+                    b = statistics.median(self.meanDataB) / 10
                     if l < self.threshold:
                         self.lockL = True
                         return "left"
