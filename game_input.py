@@ -23,6 +23,7 @@ class GameInput:
         self.meanDataF = []
         self.meanDataB = []
 
+        self.dataCount = 0
         self.DataL = []
         self.DataR = []
         self.DataF = []
