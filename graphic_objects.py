@@ -1,12 +1,26 @@
 import pygame
 import random
 from game_input import GameInput
+import math
+
+pygame.mixer.init()
 
 red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 yellow = (255, 255, 0)
-gameInput = GameInput(False)
+gameInput = GameInput(True)
+
+def rot_center(image, angle, x, y):
+    
+    rotated_image = pygame.transform.rotate(image, angle)
+    new_rect = rotated_image.get_rect(center = image.get_rect(center = (x, y)).center)
+
+    return rotated_image, new_rect
+
+def getPosForCenterCord(centerX, centerY, width):
+    offset = width / 2
+    return (centerX - offset, centerY - offset)
 
 # Grafikobjekt: Box mit verschiedenen Farben     
 class Field:
@@ -22,29 +36,34 @@ class Field:
         self.color = (0, 0, 0)
         self.blinkTime = 1000
         # (Child) Objects
-        self.topLeft = Corner(self.screen, self.posX, self.posY, cornerWidth, "blue")
-        self.topRight = Corner(self.screen, self.posX + cornerWidth, self.posY, cornerWidth, "red")
-        self.bottomLeft = Corner(self.screen, self.posX, self.posY  + cornerWidth, cornerWidth, "green")
-        self.bottomRight = Corner(self.screen, self.posX + cornerWidth, self.posY + cornerWidth, cornerWidth, "yellow")
+        self.topLeft = Corner(self.screen, cornerWidth, "blue", 2)
+        self.topRight = Corner(self.screen, cornerWidth, "red", 1)
+        self.bottomLeft = Corner(self.screen, cornerWidth, "green", 3)
+        self.bottomRight = Corner(self.screen, cornerWidth, "yellow", 4)
         # Algoritmic Variables
         self.reset()
+        self.clickSound = pygame.mixer.Sound('sounds/rollover1.wav') # alt: switch2.wav
+        self.activeSound = pygame.mixer.Sound('sounds/rollover1.wav')
+        self.gameOverSound = pygame.mixer.Sound('sounds/Downer01.wav')
+        self.roundFinishSound = pygame.mixer.Sound('sounds/Coin01.wav')
 
     def draw(self):
         self.act()
         # Feld + Subdivs
-        pygame.draw.rect(self.screen, self.color, pygame.Rect(self.posX, self.posY, self.side, self.side))
+        # pygame.draw.rect(self.screen, self.color, pygame.Rect(self.posX, self.posY, self.side, self.side))
         self.topLeft.draw()
         self.topRight.draw()
         self.bottomLeft.draw()
         self.bottomRight.draw()
         # Score
-        font = pygame.font.Font(None, 36)
-        score_text = font.render(f'Score: {self.score}', True, (0, 0, 0))
+        font = pygame.font.Font('fonts/jersey.ttf', 36)
+        score_text = font.render(f'Score: {self.score}', True, (255, 255, 255))
         self.screen.blit(score_text, (10, 10))
-        round_text = font.render(f'Runde {self.round + 1}', True, (0, 0, 0))
+        round_text = font.render(f'Runde {self.round + 1}', True, (255, 255, 255))
         self.screen.blit(round_text, (self.screen.get_width() - 130, 10))
         # return: Szenen die als nächstes folgen soll
         if self.gameOver:
+            pygame.mixer.Sound.play(self.gameOverSound)
             return "gameOver"
         else:
             return "game"
@@ -53,7 +72,6 @@ class Field:
         global scene
         now = pygame.time.get_ticks()
         if len(self.query) == self.index: # Wenn Alle gezeigt wurden ...
-            #print("All were shown")
             if now - self.cooldown >= self.blinkTime:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
@@ -68,6 +86,7 @@ class Field:
                     self.index = 0
                     self.guessIndex = 0
                     self.activationTick = pygame.time.get_ticks()
+                    pygame.mixer.Sound.play(self.roundFinishSound)
                     return
                 if self.query[self.guessIndex] == self.guess:
                     self.guess = None
@@ -98,6 +117,7 @@ class Field:
                 self.bottomLeft.activate()
             elif current == "yellow":
                 self.bottomRight.activate()
+            pygame.mixer.Sound.play(self.activeSound)
             self.index += 1
             self.activationTick = pygame.time.get_ticks()
 
@@ -113,15 +133,19 @@ class Field:
             if input == "up":
                 self.guess = "blue"
                 self.topLeft.activate()
+                pygame.mixer.Sound.play(self.clickSound)
             elif input == "right":
                 self.guess = "red"
                 self.topRight.activate()
+                pygame.mixer.Sound.play(self.clickSound)
             elif input == "left":
                 self.guess = "green"
                 self.bottomLeft.activate()
+                pygame.mixer.Sound.play(self.clickSound)
             elif input == "down":
                 self.guess = "yellow"
                 self.bottomRight.activate()
+                pygame.mixer.Sound.play(self.clickSound)
 
     def setRandomQuery(self):
         result = []
@@ -156,25 +180,46 @@ class Field:
 
             
 class Corner:
-    def __init__(self, screen, x, y, width, color):
+    def __init__(self, screen, width, color, quadrant_n):
         self.screen = screen
         self.width = int(width)
-        self.posX = x
-        self.posY = y
+        diagonal = width * math.sqrt(2)
+        quadrant_2_centerX = screen.get_width() / 2
+        quadrant_2_centerY = (screen.get_height() / 2) - (diagonal / 2)
+        if quadrant_n == 3: 
+            centerX = quadrant_2_centerX - (diagonal / 2)
+            centerY = quadrant_2_centerY + (diagonal / 2)
+        elif quadrant_n == 1:
+            centerX = quadrant_2_centerX + (diagonal / 2)
+            centerY = quadrant_2_centerY + (diagonal / 2)
+        elif quadrant_n == 4:
+            centerX = quadrant_2_centerX
+            centerY = quadrant_2_centerY + diagonal
+        elif quadrant_n == 2:
+            centerX = quadrant_2_centerX
+            centerY = quadrant_2_centerY
+        (self.posX, self.posY) = getPosForCenterCord(centerX, centerY, width)
         self.active = False
         self.color = color
         self.blinkTime = 1000
         self.activationTick = pygame.time.get_ticks()
+        # Images
         img = pygame.image.load(f'assets/{color}.png')
-        self.img = pygame.transform.scale(img, (width, width))
+        img = pygame.transform.scale(img, (width, width))
+        self.img, self.rect = rot_center(img, 45, centerX, centerY)
+        img_disabled = pygame.image.load(f'assets/grey.png')
+        img_disabled = pygame.transform.scale(img_disabled, (width, width))
+        self.img_disabled, self.rect_disabled = rot_center(img_disabled, 45, centerX, centerY)
 
     def draw(self):
         if self.active:
             # ygame.draw.rect(self.screen, self.color, pygame.Rect(self.posX, self.posY, self.width, self.width))
-            self.screen.blit(self.img, (self.posX, self.posY))
+            self.screen.blit(self.img, self.rect)
             # now = pygame.time.get_ticks()
             # if now - self.activationTick >= self.blinkTime:
             #     self.active = False
+        else:
+            self.screen.blit(self.img_disabled, self.rect_disabled)
 
     def setColor(self, color):
         if color == "red":
@@ -196,7 +241,7 @@ class Corner:
 class Text:
     def __init__(self, screen, text, size, color, offset):
         self.screen = screen
-        self.font = pygame.font.Font(None, size)
+        self.font = pygame.font.Font('fonts/jersey.ttf', size)
         self.text = text
         self.size = size
         self.color = color
