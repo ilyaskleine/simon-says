@@ -35,13 +35,13 @@ class GameInput:
     def check(self):
         if self.keyboardMode:
             keys = pygame.key.get_pressed()
-            if keys[pygame.K_q]:
+            if keys[pygame.K_UP]:
                 return "up"
-            if keys[pygame.K_s]:
+            if keys[pygame.K_DOWN]:
                 return "down"
-            if keys[pygame.K_a]:
+            if keys[pygame.K_LEFT]:
                 return "left"
-            if keys[pygame.K_w]:
+            if keys[pygame.K_RIGHT]:
                 return "right"
         else:
             return self.jsonToInput()

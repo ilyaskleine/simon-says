@@ -76,8 +76,6 @@ class Field:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
                 key = gameInput.check()
-                if not key == None:
-                    print(key)
                 self.checkInput(key)
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem
                     self.appendQuery()
@@ -90,24 +88,20 @@ class Field:
                     return
                 if self.query[self.guessIndex] == self.guess:
                     self.guess = None
-                    print("True")
                     self.guessIndex += 1
                     self.score += 1
                     self.cooldown = pygame.time.get_ticks()
                 elif self.guess:
-                    print("False")
                     self.guess = None
                     self.cooldown = pygame.time.get_ticks()
                     self.gameOver = True
-                    # => Implement Loosing Logic
 
                 self.guess = None
-
             return
+        
         if now - self.activationTick >= self.blinkTime: # Wenn das akt. Feld lang genug geleuchtet hat...
             # wechsle zum nächsten Feld
             current = self.query[self.index]
-            print(current)
             self.disableAllChild()
             if current == "blue":
                 self.topLeft.activate()
