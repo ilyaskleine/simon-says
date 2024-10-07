@@ -4,33 +4,55 @@ import statistics
 
 from input_debug import SensorData
 
-# Klasse für Verarbeitung von Tastatur / Sensoren
+class SensorField:
+    def __init__(self):
+        self.trigger_value = 5 # set active, if one median is lower (DISTANCE FROM SENSOR)
+        self.median_size = 10 # how many values the median should use
+        self.values_median = [] # stores ten values for calculating one median
+        self.values = [] # stores three calculated medians to check if one triggers
+        self.active = False
+
+    def update(self, value):
+        if len(self.values_median) < self.median_size: # Collecting data for median
+            self.values_median.append(value)
+        else: # Enough data for median: 
+            if len(self.values) < 3: # Collect three medians
+                median = statistics.median(self.values_median)
+                self.values_median = []
+                self.values.append(median)
+            else: # Check if one of them is below the trigger
+                print(self.values)
+                for value in self.values:
+                    if value < self.trigger_value:
+                        self.active = True
+                        self.values = []
+                        return
+                self.active = False
+                self.values = []
+
+# Class for handling input from keyboard / sensors 
 class GameInput:
     def __init__(self, keyboard):
         self.keyboardMode = keyboard
         if not self.keyboardMode:
             self.sensorInstance = SensorData()
-        self.threshold = 15
-        self.releaseThreshold = 50
-        self.lockL = False
-        self.lockR = False
-        self.lockF = False
-        self.lockB = False
-
-        self.meanCount = 0
-        self.meanDataL = []
-        self.meanDataR = []
-        self.meanDataF = []
-        self.meanDataB = []
-
-        self.dataCount = 0
-        self.dataL = []
-        self.dataR = []
-        self.dataF = []
-        self.dataB = []
+        
+        self.sensor_l = SensorField()
+        self.sensor_r = SensorField()
+        self.sensor_f = SensorField()
+        self.sensor_b = SensorField()
     
     def get_pressed(self):
         return pygame.key.get_pressed()
+    
+    def background_update_sensors(self):
+        if not self.keyboardMode:
+            # Gets all four distances and updates the SensorField objects
+            data = self.sensorInstance.getAll()
+            self.sensor_l.update(data["l"])
+            self.sensor_r.update(data["r"])
+            self.sensor_f.update(data["f"])
+            self.sensor_b.update(data["b"])
 
     def check(self):
         if self.keyboardMode:
@@ -44,57 +66,16 @@ class GameInput:
             if keys[pygame.K_RIGHT]:
                 return "right"
         else:
-            return self.jsonToInput()
-
-    def jsonToInput(self):
-        try:
-            data = self.sensorInstance.getAll()
-            l = data["l"]
-            r = data["r"]
-            f = data["f"]
-            b = data["b"]
-            if self.meanCount <= 10:
-                self.meanDataL.append(l)
-                self.meanDataR.append(r)
-                self.meanDataF.append(f)
-                self.meanDataB.append(b)
-                self.meanCount += 1
-            else:
-                self.meanCount = 0
-                if self.dataCount < 3:
-                    self.dataL.append(statistics.median(self.meanDataL))
-                    self.dataR.append(statistics.median(self.meanDataR) / 10)
-                    self.dataF.append(statistics.median(self.meanDataF) / 10)
-                    self.dataB.append(statistics.median(self.meanDataB) / 10)
-                else:
-                    for l in self.dataL:
-                        if l < self.threshold:
-                            self.lockL = True
-                            return "left"
-                        elif self.lockL and l > self.releaseThreshold:
-                            self.lockL = False
-                    for r in self.dataR:
-                        if r < self.threshold:
-                            self.lockR = True
-                            return "right"
-                        elif self.lockR and r > self.releaseThreshold:
-                            self.lockR = False
-                    for f in self.dataF:
-                        if f < self.threshold:
-                            self.lockF = True
-                            return "up"
-                        elif self.lockF and f > self.releaseThreshold:
-                            self.lockF = False
-                    for b in self.dataB:
-                        if b < self.threshold:
-                            self.lockB = True
-                            return "down"
-                        elif self.lockB and b > self.releaseThreshold:
-                            self.lockB = False
-                    
-        except json.decoder.JSONDecodeError:
-            print("Decode-Error");
-    
+            # Convert active fields to keyboard-like input
+            if self.sensor_l.active:
+                return "left"
+            if self.sensor_r.active:
+                return "right"
+            if self.sensor_f.active:
+                return "up"
+            if self.sensor_b.active:
+                return "down"
+            
     def debug(self):
         if not self.keyboardMode:
             try:

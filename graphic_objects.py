@@ -9,7 +9,7 @@ red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 yellow = (255, 255, 0)
-gameInput = GameInput(True)
+gameInput = GameInput(False)
 
 def rot_center(image, angle, x, y):
     
@@ -71,11 +71,13 @@ class Field:
     def act(self):
         global scene
         now = pygame.time.get_ticks()
+        gameInput.background_update_sensors()
         if len(self.query) == self.index: # Wenn Alle gezeigt wurden ...
             if now - self.cooldown >= self.blinkTime:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
                 key = gameInput.check()
+                print()
                 self.checkInput(key)
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem
                     self.appendQuery()

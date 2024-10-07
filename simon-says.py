@@ -24,7 +24,7 @@ class Game:
 
         self.scene = "game" if debug else "startscreen"
 
-        self.keyboard_input = GameInput(True)
+        self.keyboard_input = GameInput(False)
 
         # Szenen 
         self.background = BackgroundScene(self.screen, 20)
@@ -92,5 +92,5 @@ class Game:
 
         pygame.quit()
 
-game = Game(debug=False)
+game = Game(debug=True)
 game.gameLoop()
