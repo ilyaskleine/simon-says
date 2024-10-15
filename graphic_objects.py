@@ -3,13 +3,13 @@ import random
 from game_input import GameInput
 import math
 
-pygame.mixer.init()
+# pygame.mixer.init()
 
 red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 yellow = (255, 255, 0)
-gameInput = GameInput(False)
+
 
 def rot_center(image, angle, x, y):
     
@@ -24,8 +24,9 @@ def getPosForCenterCord(centerX, centerY, width):
 
 # Grafikobjekt: Box mit verschiedenen Farben     
 class Field:
-    def __init__(self, screen, side):
+    def __init__(self, screen, side, gameInput):
         self.screen = screen
+        self.gameInput = gameInput
         self.side = side
         # Computed values
         self.posX = screen.get_width() / 2 - side / 2
@@ -42,10 +43,10 @@ class Field:
         self.bottomRight = Corner(self.screen, cornerWidth, "yellow", 4)
         # Algoritmic Variables
         self.reset()
-        self.clickSound = pygame.mixer.Sound('sounds/rollover1.wav') # alt: switch2.wav
-        self.activeSound = pygame.mixer.Sound('sounds/rollover1.wav')
-        self.gameOverSound = pygame.mixer.Sound('sounds/Downer01.wav')
-        self.roundFinishSound = pygame.mixer.Sound('sounds/Coin01.wav')
+        # self.clickSound = pygame.mixer.Sound('sounds/rollover1.wav') # alt: switch2.wav
+        # self.activeSound = pygame.mixer.Sound('sounds/rollover1.wav')
+        # self.gameOverSound = pygame.mixer.Sound('sounds/Downer01.wav')
+        # self.roundFinishSound = pygame.mixer.Sound('sounds/Coin01.wav')
 
     def draw(self):
         self.act()
@@ -63,7 +64,7 @@ class Field:
         self.screen.blit(round_text, (self.screen.get_width() - 130, 10))
         # return: Szenen die als nächstes folgen soll
         if self.gameOver:
-            pygame.mixer.Sound.play(self.gameOverSound)
+            # pygame.mixer.Sound.play(self.gameOverSound)
             return "gameOver"
         else:
             return "game"
@@ -71,14 +72,13 @@ class Field:
     def act(self):
         global scene
         now = pygame.time.get_ticks()
-        gameInput.background_update_sensors()
         if len(self.query) == self.index: # Wenn Alle gezeigt wurden ...
             if now - self.cooldown >= self.blinkTime:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
-                key = gameInput.check()
-                print()
-                self.checkInput(key)
+                value = self.gameInput.get()
+                print(value)
+                self.checkInput(value)
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem
                     self.appendQuery()
                     self.blinkTime = self.blinkTime * 0.95
@@ -86,7 +86,7 @@ class Field:
                     self.index = 0
                     self.guessIndex = 0
                     self.activationTick = pygame.time.get_ticks()
-                    pygame.mixer.Sound.play(self.roundFinishSound)
+                    # pygame.mixer.Sound.play(self.roundFinishSound)
                     return
                 if self.query[self.guessIndex] == self.guess:
                     self.guess = None
@@ -113,7 +113,7 @@ class Field:
                 self.bottomLeft.activate()
             elif current == "yellow":
                 self.bottomRight.activate()
-            pygame.mixer.Sound.play(self.activeSound)
+            # pygame.mixer.Sound.play(self.activeSound)
             self.index += 1
             self.activationTick = pygame.time.get_ticks()
 
@@ -129,19 +129,19 @@ class Field:
             if input == "up":
                 self.guess = "blue"
                 self.topLeft.activate()
-                pygame.mixer.Sound.play(self.clickSound)
+                # pygame.mixer.Sound.play(self.clickSound)
             elif input == "right":
                 self.guess = "red"
                 self.topRight.activate()
-                pygame.mixer.Sound.play(self.clickSound)
+                # pygame.mixer.Sound.play(self.clickSound)
             elif input == "left":
                 self.guess = "green"
                 self.bottomLeft.activate()
-                pygame.mixer.Sound.play(self.clickSound)
+                # pygame.mixer.Sound.play(self.clickSound)
             elif input == "down":
                 self.guess = "yellow"
                 self.bottomRight.activate()
-                pygame.mixer.Sound.play(self.clickSound)
+                # pygame.mixer.Sound.play(self.clickSound)
 
     def setRandomQuery(self):
         result = []

@@ -1,9 +1,11 @@
 import pygame
 import random
 
+from threading import Thread
 from graphic_objects import Field, Text
 from game_input import GameInput
 from scenes import StartScene, BackgroundScene, GameScene, GameOverScene
+from queue import Queue
 
 class Game:
     def __init__(self, debug):
@@ -24,21 +26,19 @@ class Game:
 
         self.scene = "game" if debug else "startscreen"
 
-        self.keyboard_input = GameInput(False)
-
         # Szenen 
         self.background = BackgroundScene(self.screen, 20)
         self.startScene = StartScene(self.screen)
-        self.gameScene = GameScene(self.screen, self)
         self.gameOverScene = GameOverScene(self.screen, self)
 
         self.sceneStart = pygame.time.get_ticks() 
 
-    def gameLoop(self):
+    def gameLoop(self, gameInput):
+        self.gameScene = GameScene(self.screen, self, gameInput)
         # --- Game-Loop ---
         while self.running:
             # Beenden des Programms
-            keys = self.keyboard_input.get_pressed()
+            keys = pygame.key.get_pressed()
             if keys[pygame.K_x]:
                 self.running = False
 
@@ -72,18 +72,18 @@ class Game:
                 self.screen.blit(debug_text, (10, self.screen.get_height() - 120))
                 round_text = font.render(f'X schließt Programm', True, (255, 0, 0))
                 self.screen.blit(round_text, (10, self.screen.get_height() - 100))
-                data = self.keyboard_input.debug()
-                if data is None:
-                    print("No Sensor-Data")
-                else:
-                    l_text = font.render(f'l_value: {data["l"]}', True, (0, 0, 0))
-                    self.screen.blit(l_text, (10, self.screen.get_height() - 80))
-                    r_text = font.render(f'r_value: {data["r"]}', True, (0, 0, 0))
-                    self.screen.blit(r_text, (10, self.screen.get_height() - 60))
-                    f_text = font.render(f'f_value: {data["f"]}', True, (0, 0, 0))
-                    self.screen.blit(f_text, (10, self.screen.get_height() - 40))
-                    b_text = font.render(f'b_value: {data["b"]}', True, (0, 0, 0))
-                    self.screen.blit(b_text, (10, self.screen.get_height() - 20))
+                #data = self.keyboard_input.debug()
+                #if data is None:
+                #    print("No Sensor-Data")
+                #else:
+                #    l_text = font.render(f'l_value: {data["l"]}', True, (0, 0, 0))
+                #    self.screen.blit(l_text, (10, self.screen.get_height() - 80))
+                #    r_text = font.render(f'r_value: {data["r"]}', True, (0, 0, 0))
+                #    self.screen.blit(r_text, (10, self.screen.get_height() - 60))
+                #    f_text = font.render(f'f_value: {data["f"]}', True, (0, 0, 0))
+                #    self.screen.blit(f_text, (10, self.screen.get_height() - 40))
+                #    b_text = font.render(f'b_value: {data["b"]}', True, (0, 0, 0))
+                #    self.screen.blit(b_text, (10, self.screen.get_height() - 20))
             
             pygame.display.flip()
 
@@ -92,5 +92,11 @@ class Game:
 
         pygame.quit()
 
+gameInput = Queue(maxsize=2)
+
 game = Game(debug=True)
-game.gameLoop()
+gameThread = Thread(target=game.gameLoop, args=(gameInput,))
+gameThread.start()
+sensorThread = Thread(target=GameInput(False).run, args=(gameInput,))
+sensorThread.start()
+

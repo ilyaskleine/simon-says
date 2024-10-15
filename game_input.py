@@ -82,3 +82,9 @@ class GameInput:
                 return self.sensorInstance.getAll()
             except json.decoder.JSONDecodeError:
                 print("Decode-Error (debug)");
+
+    def run(self, gameInput):
+        print("Started Sensor thread...")
+        while True:
+            self.background_update_sensors()
+            gameInput.put(self.check())

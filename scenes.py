@@ -45,10 +45,10 @@ class StartScene:
         self.startCaption.draw()
 
 class GameScene:
-    def __init__(self, screen, gameInstance):
+    def __init__(self, screen, gameInstance, gameInput):
         self.screen = screen
         self.game = gameInstance
-        self.mainBox = Field(screen, 400)
+        self.mainBox = Field(screen, 400, gameInput)
 
     def draw(self):
         self.game.background.setMovement(True)
