@@ -1,41 +1,23 @@
 import json
 import pygame
-import statistics
-
-from input_debug import SensorData
 
 class SensorField:
     def __init__(self):
         self.trigger_value = 5 # set active, if one median is lower (DISTANCE FROM SENSOR)
-        self.median_size = 10 # how many values the median should use
-        self.values_median = [] # stores ten values for calculating one median
-        self.values = [] # stores three calculated medians to check if one triggers
         self.active = False
 
-    def update(self, value):
-        if len(self.values_median) < self.median_size: # Collecting data for median
-            self.values_median.append(value)
-        else: # Enough data for median: 
-            if len(self.values) < 3: # Collect three medians
-                median = statistics.median(self.values_median)
-                self.values_median = []
-                self.values.append(median)
-            else: # Check if one of them is below the trigger
-                print(self.values)
-                for value in self.values:
-                    if value < self.trigger_value:
-                        self.active = True
-                        self.values = []
-                        return
-                self.active = False
-                self.values = []
+    def update(self, values):
+        for value in values:
+            if value < self.trigger_value:
+                self.active = True
+                return
+            self.active = False
 
 # Class for handling input from keyboard / sensors 
 class GameInput:
-    def __init__(self, keyboard):
-        self.keyboardMode = keyboard
-        if not self.keyboardMode:
-            self.sensorInstance = SensorData()
+    def __init__(self, sharedDataObject):
+        self.sharedDataObject = sharedDataObject
+        self.keyboardMode = False
         
         self.sensor_l = SensorField()
         self.sensor_r = SensorField()
@@ -45,14 +27,13 @@ class GameInput:
     def get_pressed(self):
         return pygame.key.get_pressed()
     
-    def background_update_sensors(self):
+    def update_sensors(self):
         if not self.keyboardMode:
             # Gets all four distances and updates the SensorField objects
-            data = self.sensorInstance.getAll()
-            self.sensor_l.update(data["l"])
-            self.sensor_r.update(data["r"])
-            self.sensor_f.update(data["f"])
-            self.sensor_b.update(data["b"])
+            self.sensor_l.update(self.sharedDataObject.getLeft())
+            self.sensor_r.update(self.sharedDataObject.getRight())
+            self.sensor_f.update(self.sharedDataObject.getFront())
+            self.sensor_b.update(self.sharedDataObject.getBack())
 
     def check(self):
         if self.keyboardMode:
@@ -66,6 +47,7 @@ class GameInput:
             if keys[pygame.K_RIGHT]:
                 return "right"
         else:
+            self.update_sensors()
             # Convert active fields to keyboard-like input
             if self.sensor_l.active:
                 return "left"
@@ -79,12 +61,6 @@ class GameInput:
     def debug(self):
         if not self.keyboardMode:
             try:
-                return self.sensorInstance.getAll()
+                return self.sharedDataObject.getLeft()
             except json.decoder.JSONDecodeError:
                 print("Decode-Error (debug)");
-
-    def run(self, gameInput):
-        print("Started Sensor thread...")
-        while True:
-            self.background_update_sensors()
-            gameInput.put(self.check())

@@ -1,14 +1,12 @@
 import pygame
-import random
 
 from threading import Thread
-from graphic_objects import Field, Text
-from game_input import GameInput
 from scenes import StartScene, BackgroundScene, GameScene, GameOverScene
-from queue import Queue
+from data import Data
+from sensor_debug import Sensor
 
 class Game:
-    def __init__(self, debug):
+    def __init__(self, debug, sharedDataObject):
         self.debug = debug
         # --- Pygame Setup ---
         pygame.init()
@@ -30,11 +28,11 @@ class Game:
         self.background = BackgroundScene(self.screen, 20)
         self.startScene = StartScene(self.screen)
         self.gameOverScene = GameOverScene(self.screen, self)
+        self.gameScene = GameScene(self.screen, self, sharedDataObject)
 
         self.sceneStart = pygame.time.get_ticks() 
 
-    def gameLoop(self, gameInput):
-        self.gameScene = GameScene(self.screen, self, gameInput)
+    def gameLoop(self, sharedDataObject):
         # --- Game-Loop ---
         while self.running:
             # Beenden des Programms
@@ -92,11 +90,11 @@ class Game:
 
         pygame.quit()
 
-gameInput = Queue(maxsize=2)
+sharedDataObject = Data()
 
-game = Game(debug=True)
-gameThread = Thread(target=game.gameLoop, args=(gameInput,))
+game = Game(debug=True, sharedDataObject=sharedDataObject)
+gameThread = Thread(target=game.gameLoop, args=(sharedDataObject,))
 gameThread.start()
-sensorThread = Thread(target=GameInput(False).run, args=(gameInput,))
+sensorThread = Thread(target=Sensor().run, args=(sharedDataObject,))
 sensorThread.start()
 

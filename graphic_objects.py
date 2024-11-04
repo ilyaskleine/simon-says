@@ -24,9 +24,9 @@ def getPosForCenterCord(centerX, centerY, width):
 
 # Grafikobjekt: Box mit verschiedenen Farben     
 class Field:
-    def __init__(self, screen, side, gameInput):
+    def __init__(self, screen, side, sharedDataObject):
         self.screen = screen
-        self.gameInput = gameInput
+        self.gameInput = GameInput(sharedDataObject)
         self.side = side
         # Computed values
         self.posX = screen.get_width() / 2 - side / 2
@@ -76,7 +76,7 @@ class Field:
             if now - self.cooldown >= self.blinkTime:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
-                value = self.gameInput.get()
+                value = self.gameInput.check()
                 print(value)
                 self.checkInput(value)
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem
