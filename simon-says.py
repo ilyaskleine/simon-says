@@ -92,9 +92,9 @@ class Game:
 
 sharedDataObject = Data()
 
-game = Game(debug=True, sharedDataObject=sharedDataObject)
-gameThread = Thread(target=game.gameLoop, args=(sharedDataObject,))
-gameThread.start()
 sensorThread = Thread(target=Sensor().run, args=(sharedDataObject,))
 sensorThread.start()
+game = Game(debug=True, sharedDataObject=sharedDataObject)
+game.gameLoop(sharedDataObject)
+
 

@@ -8,7 +8,10 @@ class Sensor:
         while True:
             with open('distances.json') as file:
                 data = json.load(file)
-            sharedDataObject.setValues(data["l"], data["r"], data["b"], data["f"])
+            sharedDataObject.setLeft(data["l"])
+            sharedDataObject.setRight(data["r"])
+            sharedDataObject.setFront(data["f"])
+            sharedDataObject.setBack(data["b"])
 
 
 

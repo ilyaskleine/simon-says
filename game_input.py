@@ -7,6 +7,7 @@ class SensorField:
         self.active = False
 
     def update(self, values):
+        print(values)
         for value in values:
             if value < self.trigger_value:
                 self.active = True
