@@ -1,6 +1,5 @@
 import pygame
 import random
-from game_input import GameInput
 import math
 
 # pygame.mixer.init()
@@ -24,9 +23,9 @@ def getPosForCenterCord(centerX, centerY, width):
 
 # Grafikobjekt: Box mit verschiedenen Farben     
 class Field:
-    def __init__(self, screen, side, sharedDataObject):
+    def __init__(self, screen, side, sharedGameState):
         self.screen = screen
-        self.gameInput = GameInput(sharedDataObject)
+        self.sharedGameState = sharedGameState
         self.side = side
         # Computed values
         self.posX = screen.get_width() / 2 - side / 2
@@ -76,7 +75,7 @@ class Field:
             if now - self.cooldown >= self.blinkTime:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
-                value = self.gameInput.check()
+                value = self.sharedGameState.activeField
                 print(value)
                 self.checkInput(value)
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem

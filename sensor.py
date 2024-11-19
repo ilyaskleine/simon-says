@@ -18,7 +18,7 @@ class Sensor:
     def __init__(self, tag, sharedDataObject):
         self.tag = tag
         self.sharedDataObject = sharedDataObject
-        self.median_size = 10 # how many values the median should use
+        self.median_size = 3 # how many values the median should use
         self.values_median = [] # stores ten values for calculating one median
 
     def update(self, value):
@@ -29,13 +29,13 @@ class Sensor:
             median = statistics.median(self.values_median)
             self.values_median = []
             if self.tag == "l":
-                self.sharedDataObject.setLeft(median)
+                self.sharedDataObject.left = median
             elif self.tag == "r":
-                self.sharedDataObject.setRight(median)
+                self.sharedDataObject.right = median
             elif self.tag == "f":
-                self.sharedDataObject.setFront(median)
+                self.sharedDataObject.front = median
             elif self.tag == "b":
-                self.sharedDataObject.setBack(median)
+                self.sharedDataObject.back = median
 
 
 class SensorController:

@@ -1,23 +1,23 @@
 import json
 import pygame
+from gamestate import GameState
 
 class SensorField:
     def __init__(self):
         self.trigger_value = 5 # set active, if one median is lower (DISTANCE FROM SENSOR)
         self.active = False
 
-    def update(self, values):
-        print(values)
-        for value in values:
-            if value < self.trigger_value:
-                self.active = True
-                return
-            self.active = False
+    def update(self, value):
+        if value < self.trigger_value:
+            self.active = True
+            return
+        self.active = False
 
 # Class for handling input from keyboard / sensors 
 class GameInput:
-    def __init__(self, sharedDataObject):
+    def __init__(self, sharedDataObject, sharedGameState):
         self.sharedDataObject = sharedDataObject
+        self.sharedGameState = sharedGameState
         self.keyboardMode = False
         
         self.sensor_l = SensorField()
@@ -25,16 +25,17 @@ class GameInput:
         self.sensor_f = SensorField()
         self.sensor_b = SensorField()
     
+    # For keyboard input only
     def get_pressed(self):
         return pygame.key.get_pressed()
     
     def update_sensors(self):
         if not self.keyboardMode:
             # Gets all four distances and updates the SensorField objects
-            self.sensor_l.update(self.sharedDataObject.getLeft())
-            self.sensor_r.update(self.sharedDataObject.getRight())
-            self.sensor_f.update(self.sharedDataObject.getFront())
-            self.sensor_b.update(self.sharedDataObject.getBack())
+            self.sensor_l.update(self.sharedDataObject.left)
+            self.sensor_r.update(self.sharedDataObject.right)
+            self.sensor_f.update(self.sharedDataObject.front)
+            self.sensor_b.update(self.sharedDataObject.back)
 
     def check(self):
         if self.keyboardMode:
@@ -58,6 +59,10 @@ class GameInput:
                 return "up"
             if self.sensor_b.active:
                 return "down"
+            
+    def run(self):
+        while True:
+            self.sharedGameState.activeField = self.check()
             
     def debug(self):
         if not self.keyboardMode:
