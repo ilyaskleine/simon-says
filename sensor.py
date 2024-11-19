@@ -69,7 +69,6 @@ class SensorController:
 
         pulse_duration = pulse_end_time - pulse_start_time
         distance = round(pulse_duration * 17150, 2)
-        print("Distance:",distance,"cm")
         return distance
     
     def getAll(self):

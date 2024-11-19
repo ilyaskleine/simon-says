@@ -1,6 +1,5 @@
 import json
 import pygame
-from gamestate import GameState
 
 class SensorField:
     def __init__(self):
@@ -8,10 +7,13 @@ class SensorField:
         self.active = False
 
     def update(self, value):
+        if value == None:
+            return
         if value < self.trigger_value:
             self.active = True
             return
-        self.active = False
+        else:
+            self.active = False
 
 # Class for handling input from keyboard / sensors 
 class GameInput:
@@ -62,6 +64,7 @@ class GameInput:
             
     def run(self):
         while True:
+            self.update_sensors()
             self.sharedGameState.activeField = self.check()
             
     def debug(self):
