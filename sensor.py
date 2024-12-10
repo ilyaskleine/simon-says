@@ -22,7 +22,16 @@ class Sensor:
         self.values_median = [] # stores ten values for calculating one median
 
     def update(self, value):
-        if value == None: return;
+        if value == None: return
+        if self.tag == "l":
+            self.sharedDataObject.left = value
+        elif self.tag == "r":
+            self.sharedDataObject.right = value
+        elif self.tag == "f":
+            self.sharedDataObject.front = value
+        elif self.tag == "b":
+            self.sharedDataObject.back = value
+        return
         if len(self.values_median) < self.median_size: # Collecting data for median
             self.values_median.append(value)
         else: # Enough data for median: 
@@ -56,12 +65,14 @@ class SensorController:
         GPIO.output(trg, GPIO.LOW)
 
     def getDistance(self, trg, ech):
+        # print(f"Getting distance of {trg}")
         GPIO.output(trg, GPIO.HIGH)
 
         time.sleep(0.00001)
 
         GPIO.output(trg, GPIO.LOW)
 
+        pulse_start_time = time.time()
         while GPIO.input(ech)==0:
             pulse_start_time = time.time()
         while GPIO.input(ech)==1:
@@ -69,6 +80,7 @@ class SensorController:
 
         pulse_duration = pulse_end_time - pulse_start_time
         distance = round(pulse_duration * 17150, 2)
+        # print(f"Finished distance of {trg}")
         return distance
     
     def getAll(self):
@@ -93,9 +105,14 @@ class SensorController:
         while True:
             if self.ready:
                 leftSensor.update(self.getDistance(L_TRIGGER, L_ECHO))
+                time.sleep(0.01)
                 rightSensor.update(self.getDistance(R_TRIGGER, R_ECHO))
+                time.sleep(0.01)
                 frontSensor.update(self.getDistance(B_TRIGGER, B_ECHO))
+                time.sleep(0.01)
                 backSensor.update(self.getDistance(F_TRIGGER, F_ECHO))
+                time.sleep(0.01)
+            time.sleep(0.01)
 
 
 

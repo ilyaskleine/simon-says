@@ -71,35 +71,35 @@ class Field:
     def act(self):
         global scene
         now = pygame.time.get_ticks()
-        if len(self.query) == self.index: # Wenn Alle gezeigt wurden ...
-            if now - self.cooldown >= self.blinkTime:
-                if now - self.activationTick >= self.blinkTime:
-                    self.disableAllChild()
+        if True: # len(self.query) == self.index: # Wenn Alle gezeigt wurden ...
+            if True: # now - self.cooldown >= self.blinkTime:
+                # if now - self.activationTick >= self.blinkTime:
+                self.disableAllChild()
                 value = self.sharedGameState.activeField
                 print(value)
                 self.checkInput(value)
-                if len(self.query) == self.guessIndex: # Wenn fertig geratem
-                    self.appendQuery()
-                    self.blinkTime = self.blinkTime * 0.95
-                    self.round += 1
-                    self.index = 0
-                    self.guessIndex = 0
-                    self.activationTick = pygame.time.get_ticks()
-                    # pygame.mixer.Sound.play(self.roundFinishSound)
-                    return
-                if self.query[self.guessIndex] == self.guess:
-                    self.guess = None
-                    self.guessIndex += 1
-                    self.score += 1
-                    self.cooldown = pygame.time.get_ticks()
-                elif self.guess:
-                    self.guess = None
-                    self.cooldown = pygame.time.get_ticks()
-                    self.gameOver = True
+            #     if len(self.query) == self.guessIndex: # Wenn fertig geratem
+            #         self.appendQuery()
+            #         self.blinkTime = self.blinkTime * 0.95
+            #         self.round += 1
+            #         self.index = 0
+            #         self.guessIndex = 0
+            #         self.activationTick = pygame.time.get_ticks()
+            #         # pygame.mixer.Sound.play(self.roundFinishSound)
+            #         return
+            #     if self.query[self.guessIndex] == self.guess:
+            #         self.guess = None
+            #         self.guessIndex += 1
+            #         self.score += 1
+            #         self.cooldown = pygame.time.get_ticks()
+            #     elif self.guess:
+            #         self.guess = None
+            #         self.cooldown = pygame.time.get_ticks()
+            #         self.gameOver = True
 
-                self.guess = None
-            return
-        
+            #     self.guess = None
+            # return
+        return
         if now - self.activationTick >= self.blinkTime: # Wenn das akt. Feld lang genug geleuchtet hat...
             # wechsle zum nächsten Feld
             current = self.query[self.index]

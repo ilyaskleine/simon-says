@@ -1,9 +1,10 @@
 import json
 import pygame
+import time
 
 class SensorField:
     def __init__(self):
-        self.trigger_value = 5 # set active, if one median is lower (DISTANCE FROM SENSOR)
+        self.trigger_value = 30 # set active, if one median is lower (DISTANCE FROM SENSOR)
         self.active = False
 
     def update(self, value):
@@ -34,6 +35,11 @@ class GameInput:
     def update_sensors(self):
         if not self.keyboardMode:
             # Gets all four distances and updates the SensorField objects
+            #print(self.sharedDataObject.left)
+            #print(self.sharedDataObject.right)
+            #print(self.sharedDataObject.front)
+            #print(self.sharedDataObject.back)
+
             self.sensor_l.update(self.sharedDataObject.left)
             self.sensor_r.update(self.sharedDataObject.right)
             self.sensor_f.update(self.sharedDataObject.front)
@@ -66,6 +72,7 @@ class GameInput:
         while True:
             self.update_sensors()
             self.sharedGameState.activeField = self.check()
+            time.sleep(0.01)
             
     def debug(self):
         if not self.keyboardMode:

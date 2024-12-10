@@ -86,9 +86,9 @@ class Game:
                 #    self.screen.blit(b_text, (10, self.screen.get_height() - 20))
             
             pygame.display.flip()
-
             # Setzt FPS
-            self.dt = self.clock.tick(30) / 1000
+            self.dt = self.clock.tick(60) / 1000
+            print("dt" + str(self.dt))
 
         pygame.quit()
 
@@ -96,9 +96,9 @@ sharedDataObject = Data()
 sharedGameState = GameState()
 sensorThread = Thread(target=SensorController().run, args=(sharedDataObject,))
 sensorThread.start()
-logicThread = Thread(target=GameInput().run, args=(sharedDataObject, sharedGameState))
+logicThread = Thread(target=GameInput(sharedDataObject, sharedGameState).run, args=())
 logicThread.start()
-game = Game(debug=True, sharedDataObject=sharedDataObject)
+game = Game(debug=True, sharedGameState=sharedGameState)
 game.gameLoop(sharedGameState)
 
 

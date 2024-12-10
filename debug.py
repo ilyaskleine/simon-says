@@ -5,20 +5,22 @@ from gamestate import GameState
 from game_input import GameInput
 import time
 
+class Game:
+    def __init__(self, sharedGameState):
+        self.sharedGameState = sharedGameState
+
+    def gameLoop(self):
+        while True:
+            print(self.sharedGameState.activeField)
+            time.sleep(0.01)
+
 sharedDataObject = Data()
 sharedGameState = GameState()
 sensorThread = Thread(target=SensorController().run, args=(sharedDataObject,))
 sensorThread.start()
 logicThread = Thread(target=GameInput(sharedDataObject, sharedGameState).run, args=())
 logicThread.start()
-
-while True:
-    print(f"F: {sharedDataObject.front}")
-    print(f"B: {sharedDataObject.back}")
-    print(f"R: {sharedDataObject.right}")
-    print(f"L: {sharedDataObject.left}")
-    print(f"Field: {sharedGameState.activeField}")
-    time.sleep(1)
-
+game = Game(sharedGameState=sharedGameState)
+game.gameLoop()
 
 
