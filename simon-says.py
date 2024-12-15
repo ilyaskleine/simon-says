@@ -1,6 +1,12 @@
 import pygame
 import random
 
+from sensor_debug import SensorThread
+from data_classes import SensorData, LogicData
+from thread_logic import LogicThread
+import time
+from threading import Thread
+
 red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
@@ -33,9 +39,10 @@ class User:
 # Grafikobjekt: Box mit verschiedenen Farben     
 
 class Field:
-    def __init__(self, side):
-        global screen
+    def __init__(self, side, screen, sharedGameState):
+        self.screen = screen
         self.side = side
+        self.sharedGameState = sharedGameState
         # Computed values
         self.posX = screen.get_width() / 2 - side / 2
         self.posY = screen.get_height() / 2 - side / 2
@@ -45,10 +52,10 @@ class Field:
         self.color = "black"
         self.blinkTime = 1000
         # (Child) Objects
-        self.topLeft = Corner(self.posX, self.posY, cornerWidth, blue)
-        self.topRight = Corner(self.posX + cornerWidth, self.posY, cornerWidth, red)
-        self.bottomLeft = Corner(self.posX, self.posY  + cornerWidth, cornerWidth, green)
-        self.bottomRight = Corner(self.posX + cornerWidth, self.posY + cornerWidth, cornerWidth, yellow)
+        self.topLeft = Corner(self.screen, self.posX, self.posY, cornerWidth, blue)
+        self.topRight = Corner(self.screen, self.posX + cornerWidth, self.posY, cornerWidth, red)
+        self.bottomLeft = Corner(self.screen, self.posX, self.posY  + cornerWidth, cornerWidth, green)
+        self.bottomRight = Corner(self.screen, self.posX + cornerWidth, self.posY + cornerWidth, cornerWidth, yellow)
         # Algoritmic Variables
         self.query = []
         self.queryLength = 1
@@ -62,10 +69,9 @@ class Field:
         self.score = 0
 
     def draw(self):
-        global screen
         self.act()
         # Feld + Subdivs
-        pygame.draw.rect(screen, self.color, pygame.Rect(self.posX, self.posY, self.side, self.side))
+        pygame.draw.rect(self.screen, self.color, pygame.Rect(self.posX, self.posY, self.side, self.side))
         self.topLeft.draw()
         self.topRight.draw()
         self.bottomLeft.draw()
@@ -73,7 +79,7 @@ class Field:
         # Score
         font = pygame.font.Font(None, 36)
         score_text = font.render(f'Score: {self.score}', True, (0, 0, 0))
-        screen.blit(score_text, (10, 10))
+        self.screen.blit(score_text, (10, 10))
 
     def act(self):
         now = pygame.time.get_ticks()
@@ -82,8 +88,8 @@ class Field:
             if now - self.cooldown >= self.blinkTime:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
-                key = gameInput.check()
-                self.checkInput(key)
+                print("Checking...")
+                self.checkInput()
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem
                     self.queryLength += 1
                     self.setRandomQuery()
@@ -134,7 +140,8 @@ class Field:
         self.bottomRight.deactivate()
             
 
-    def checkInput(self, input):
+    def checkInput(self):
+        input = self.sharedGameState.activeField
         if input:
             if input == "up":
                 self.guess = "blue"
@@ -161,7 +168,8 @@ class Field:
 
             
 class Corner:
-    def __init__(self, x, y, width, color):
+    def __init__(self, screen, x, y, width, color):
+        self.screen = screen
         self.width = width
         self.posX = x
         self.posY = y
@@ -172,7 +180,7 @@ class Corner:
 
     def draw(self):
         if self.active:
-            pygame.draw.rect(screen, self.color, pygame.Rect(self.posX, self.posY, self.width, self.width))
+            pygame.draw.rect(self.screen, self.color, pygame.Rect(self.posX, self.posY, self.width, self.width))
             # now = pygame.time.get_ticks()
             # if now - self.activationTick >= self.blinkTime:
             #     self.active = False
@@ -195,52 +203,48 @@ class Corner:
         self.active = False
 
         
+class Game:
+    def __init__(self, debug, sharedGameState):
+        # Pygame Setup
+        pygame.init()
+        pygame.font.init()
+        self.screen = pygame.display.set_mode((1000, 720));
+        pygame.display.set_caption("Farbfelder")
+        self.clock = pygame.time.Clock() 
+        self.running = True # Game Loop an aus 
+        self.dt = 0 # Für alles was sich bewegen würde
+        self.smallBoxWidth = 45;
+        self.smallBoxDistance = 250;
 
+        self.gameInput = GameInput(True)
+        self.user = User()
 
-# Pygame Setup
-pygame.init()
-pygame.font.init()
-screen = pygame.display.set_mode((1000, 720));
-pygame.display.set_caption("Farbfelder")
-clock = pygame.time.Clock() 
-running = True # Game Loop an aus 
-dt = 0 # Für alles was sich bewegen würde
-smallBoxWidth = 45;
-smallBoxDistance = 250;
+        # Erstellung der Grafikobjekte
+        self.mainBox = Field(400, self.screen, sharedGameState)
+        
+    def gameLoop(self, sharedGameState):
+        # --- Game-Loop ---
+        while self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+            
+            # Hintergrund
+            self.screen.fill("white")
+            self.mainBox.draw()
 
-gameInput = GameInput(True)
-user = User()
+            pygame.display.flip()
 
-# Erstellung der Grafikobjekte
-mainBox = Field(400)
+            # Setzt FPS
+            dt = self.clock.tick(30) / 1000 
 
-while running:
+        pygame.quit()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    
-    # Hintergrund
-    screen.fill("white")
-    # Farbkästchen an den Seiten
-    #if user.score <= 5:
-    #    pygame.draw.rect(screen, "red", pygame.Rect(screen.get_width() / 2 - smallBoxWidth / 2, (screen.get_height() / 2 - smallBoxWidth / 2) - smallBoxDistance, smallBoxWidth, smallBoxWidth))
-    #    pygame.draw.rect(screen, "violet", pygame.Rect(screen.get_width() / 2 - smallBoxWidth / 2, (screen.get_height() / 2 - smallBoxWidth / 2) + smallBoxDistance, smallBoxWidth, smallBoxWidth))
-    #    pygame.draw.rect(screen, "blue", pygame.Rect((screen.get_width() / 2 - smallBoxWidth / 2) - smallBoxDistance, screen.get_height() / 2 - smallBoxWidth / 2, smallBoxWidth, smallBoxWidth))
-    #    pygame.draw.rect(screen, "green", pygame.Rect((screen.get_width() / 2 - smallBoxWidth / 2) + smallBoxDistance, screen.get_height() / 2 - smallBoxWidth / 2, smallBoxWidth, smallBoxWidth))
-
-    mainBox.draw()
-
-    
-
-    # if mainBox.checkInput(key):
-        # user.scoreUp()
-        # print(user.score)
-        #mainBox.randomColor()
-
-    pygame.display.flip()
-
-    # Setzt FPS
-    dt = clock.tick(30) / 1000 
-
-pygame.quit()
+sharedDataObject = SensorData()
+sharedGameState = LogicData()
+sensorThread = Thread(target=SensorThread().run, args=(sharedDataObject,))
+sensorThread.start()
+logicThread = Thread(target=LogicThread(sharedDataObject, sharedGameState).run, args=())
+logicThread.start()
+game = Game(debug=True, sharedGameState=sharedGameState)
+game.gameLoop(sharedGameState)
