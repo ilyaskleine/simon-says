@@ -1,7 +1,6 @@
-from sensor_debug import Sensor
+from thread_sensor import SensorThread
 from data_classes import SensorData, LogicData
-from gamestate import GameState
-from game_input import GameInput
+from thread_logic import LogicThread
 import time
 from threading import Thread
 
@@ -11,16 +10,19 @@ class Game:
 
     def gameLoop(self):
         while True:
-            print(self.sharedGameState.activeField)
+            #print(self.sharedGameState.left)
+            #print(self.sharedGameState.right)
+            #print(self.sharedGameState.front)
+            print(self.sharedGameState.back)
             time.sleep(0.01)
 
 sharedDataObject = SensorData()
 sharedGameState = LogicData()
-sensorThread = Thread(target=Sensor().run, args=(sharedDataObject,))
+sensorThread = Thread(target=SensorThread().run, args=(sharedDataObject,))
 sensorThread.start()
-logicThread = Thread(target=GameInput(sharedDataObject, sharedGameState).run, args=())
+logicThread = Thread(target=LogicThread(sharedDataObject, sharedGameState).run, args=())
 logicThread.start()
-game = Game(sharedGameState=sharedGameState)
+game = Game(sharedGameState=sharedDataObject)
 game.gameLoop()
 
 

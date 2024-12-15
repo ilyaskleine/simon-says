@@ -1,7 +1,7 @@
 import pygame
 import random
 
-from sensor_debug import SensorThread
+from thread_sensor import SensorThread
 from data_classes import SensorData, LogicData
 from thread_logic import LogicThread
 import time
@@ -11,6 +11,7 @@ red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 yellow = (255, 255, 0)
+black = (0, 0, 0)
 
 # Klasse für Verarbeitung von Tastatur / Sensoren
 class GameInput:
@@ -49,7 +50,7 @@ class Field:
         cornerWidth = side / 2
         # Config 
         self.colorsToKey = {"red": "right", "yellow": "down", "blue": "up", "green": "left"}
-        self.color = "black"
+        self.color = black
         self.blinkTime = 1000
         # (Child) Objects
         self.topLeft = Corner(self.screen, self.posX, self.posY, cornerWidth, blue)
@@ -88,7 +89,6 @@ class Field:
             if now - self.cooldown >= self.blinkTime:
                 if now - self.activationTick >= self.blinkTime:
                     self.disableAllChild()
-                print("Checking...")
                 self.checkInput()
                 if len(self.query) == self.guessIndex: # Wenn fertig geratem
                     self.queryLength += 1
@@ -208,13 +208,13 @@ class Game:
         # Pygame Setup
         pygame.init()
         pygame.font.init()
-        self.screen = pygame.display.set_mode((1000, 720));
+        self.screen = pygame.display.set_mode((1000, 720))
         pygame.display.set_caption("Farbfelder")
         self.clock = pygame.time.Clock() 
         self.running = True # Game Loop an aus 
         self.dt = 0 # Für alles was sich bewegen würde
-        self.smallBoxWidth = 45;
-        self.smallBoxDistance = 250;
+        self.smallBoxWidth = 45
+        self.smallBoxDistance = 250
 
         self.gameInput = GameInput(True)
         self.user = User()
@@ -230,7 +230,7 @@ class Game:
                     running = False
             
             # Hintergrund
-            self.screen.fill("white")
+            self.screen.fill((255, 255, 255))
             self.mainBox.draw()
 
             pygame.display.flip()
