@@ -49,11 +49,11 @@ if __name__ == '__main__':
             if active == RECEIVER_PIN1:
                 pygame.draw.rect(screen, red, pygame.Rect(centerX - (fieldWidth / 2), 0, fieldWidth, fieldWidth))
             elif active == RECEIVER_PIN2:
-                pygame.draw.rect(screen, green, pygame.Rect(centerX - (fieldWidth / 2), 0, fieldWidth, fieldWidth))
+                pygame.draw.rect(screen, green, pygame.Rect(0, centerY - (fieldWidth / 2), fieldWidth, fieldWidth))
             elif active == RECEIVER_PIN3:
-                pygame.draw.rect(screen, blue, pygame.Rect(centerX - (fieldWidth / 2), 0, fieldWidth, fieldWidth))
+                pygame.draw.rect(screen, blue, pygame.Rect(centerX - (fieldWidth / 2), centerY*2 - fieldWidth, fieldWidth, fieldWidth))
             elif active == RECEIVER_PIN4:
-                pygame.draw.rect(screen, yellow, pygame.Rect(centerX - (fieldWidth / 2), 0, fieldWidth, fieldWidth))
+                pygame.draw.rect(screen, yellow, pygame.Rect(centerX*2 - fieldWidth, centerY - (fieldWidth / 2), fieldWidth, fieldWidth))
             pygame.display.flip()
             clock.tick(30)
  
