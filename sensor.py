@@ -14,6 +14,11 @@ B_ECHO = 20
 F_TRIGGER = 23
 F_ECHO = 24
 
+RECEIVER_PIN1 = 18
+RECEIVER_PIN2 = 18
+RECEIVER_PIN3 = 18
+RECEIVER_PIN4 = 18
+
 class Sensor:
     def __init__(self, tag, sharedDataObject):
         self.tag = tag
@@ -48,16 +53,34 @@ class Sensor:
 
 
 class SensorController:
-    def __init__(self):
+    def __init__(self, sharedDataObject):
         self.ready = False
+        self.sharedDataObject = sharedDataObject
         GPIO.setmode(GPIO.BCM)
-        self.initPins(L_TRIGGER, L_ECHO)
-        self.initPins(R_TRIGGER, R_ECHO)
-        self.initPins(B_TRIGGER, B_ECHO)
-        self.initPins(F_TRIGGER, F_ECHO)
+        GPIO.setwarnings(False)
+        GPIO.setup(RECEIVER_PIN1, GPIO.IN)
+        GPIO.setup(RECEIVER_PIN2, GPIO.IN)
+        GPIO.setup(RECEIVER_PIN3, GPIO.IN)
+        GPIO.setup(RECEIVER_PIN4, GPIO.IN)
+
+        GPIO.add_event_detect(RECEIVER_PIN1, GPIO.RISING, callback=self.sensorCallback, bouncetime=200)
+        GPIO.add_event_detect(RECEIVER_PIN2, GPIO.RISING, callback=self.sensorCallback, bouncetime=200)
+        GPIO.add_event_detect(RECEIVER_PIN3, GPIO.RISING, callback=self.sensorCallback, bouncetime=200)
+        GPIO.add_event_detect(RECEIVER_PIN4, GPIO.RISING, callback=self.sensorCallback, bouncetime=200)
         print("Waiting for sensors to settle")
         time.sleep(2)
         self.ready = True
+        self.active = None
+
+    def sensorCallback(self, channel):
+        if channel == 18:
+            self.sharedDataObject.left = GPIO.iput(channel)
+        elif channel == 18:
+            self.sharedDataObject.right = GPIO.iput(channel)
+        elif channel == 18:
+            self.sharedDataObject.front = GPIO.iput(channel)
+        elif channel == 18:
+            self.sharedDataObject.back = GPIO.iput(channel)
 
     def initPins(self, trg, ech):
         GPIO.setup(trg, GPIO.OUT)
@@ -98,27 +121,16 @@ class SensorController:
         GPIO.cleanup()
 
     def run(self, sharedDataObject):
-        leftSensor = Sensor("l", sharedDataObject)
-        rightSensor = Sensor("r", sharedDataObject)
-        frontSensor = Sensor("f", sharedDataObject)
-        backSensor = Sensor("b", sharedDataObject)
-        while True:
-            if self.ready:
-                leftSensor.update(self.getDistance(L_TRIGGER, L_ECHO))
-                time.sleep(0.01)
-                rightSensor.update(self.getDistance(R_TRIGGER, R_ECHO))
-                time.sleep(0.01)
-                frontSensor.update(self.getDistance(B_TRIGGER, B_ECHO))
-                time.sleep(0.01)
-                backSensor.update(self.getDistance(F_TRIGGER, F_ECHO))
-                time.sleep(0.01)
-            time.sleep(0.01)
+        # leftSensor = Sensor("l", sharedDataObject)
+        # rightSensor = Sensor("r", sharedDataObject)
+        # frontSensor = Sensor("f", sharedDataObject)
+        # backSensor = Sensor("b", sharedDataObject)
+        pass
 
 
+class SensorThread:
+    def __init__(self, sharedDataObject):
+        self.controller = None
 
-
-
-
-
-
-    
+    def run(self, sharedDataObject):
+        self.controller = SensorController(sharedDataObject)

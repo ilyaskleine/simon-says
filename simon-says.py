@@ -4,7 +4,7 @@ from threading import Thread
 from scenes import StartScene, BackgroundScene, GameScene, GameOverScene
 from data import Data
 from gamestate import GameState
-from sensor import SensorController
+from sensor import SensorThread
 from game_input import GameInput
 
 class Game:
@@ -94,7 +94,7 @@ class Game:
 
 sharedDataObject = Data()
 sharedGameState = GameState()
-sensorThread = Thread(target=SensorController().run, args=(sharedDataObject,))
+sensorThread = Thread(target=SensorThread().run, args=(sharedDataObject,))
 sensorThread.start()
 logicThread = Thread(target=GameInput(sharedDataObject, sharedGameState).run, args=())
 logicThread.start()

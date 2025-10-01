@@ -8,13 +8,7 @@ class SensorField:
         self.active = False
 
     def update(self, value):
-        if value == None:
-            return
-        if value < self.trigger_value:
-            self.active = True
-            return
-        else:
-            self.active = False
+        self.active = value
 
 # Class for handling input from keyboard / sensors 
 class GameInput:
